@@ -1,0 +1,21 @@
+[package]
+name = "benchmark"
+version = "0.1.0"
+authors = ["Lucas Nogueira <lucas@tauri.studio>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.28"
+iota-core = { path = "../iota-core" }
+iota-conversion = { version = "0.5.0", path = "../iota-conversion" }
+smol-potat = "0.1"
+smol = { version = "0.1.2", features = ["tokio02"] }
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+incremental = false
+opt-level = "z"
