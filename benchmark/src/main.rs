@@ -36,7 +36,7 @@ fn get_unchecked_address() {
 }
 
 fn main() {
-    for _ in 1..10 {
+    for _ in 1..500 {
         get_unchecked_address();
     }
 }
