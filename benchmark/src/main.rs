@@ -1,12 +1,13 @@
-use anyhow::Result;
-use iota::bundle::TransactionField;
+use iota::bundle::{Address, TransactionField};
 use iota::crypto::Kerl;
-use iota::signing::{IotaSeed, Seed};
+use iota::signing::{
+    IotaSeed, PrivateKey, PrivateKeyGenerator, PublicKey, Seed, WotsPrivateKeyGeneratorBuilder,
+    WotsSecurityLevel,
+};
 use iota::ternary::{T1B1Buf, TryteBuf};
 use iota_conversion::Trinary;
 
-async fn get_new_address() -> Result<()> {
-    // Create seed from your seed trytes
+fn get_unchecked_address() {
     let seed = IotaSeed::<Kerl>::from_buf(
         TryteBuf::try_from_str(
             "RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVA",
@@ -17,27 +18,25 @@ async fn get_new_address() -> Result<()> {
     )
     .unwrap();
 
-    // The response of get_new_address is a tuple of an adress with its corresponding index from seed.
-    let (_, address) = iota::Client::new("https://nodes.comnet.thetangle.org")?
-        .get_new_address()
-        .seed(&seed)
-        .security(3)
-        .generate()
-        .await
-        .unwrap();
+    let address: Address = Address::try_from_inner(
+        WotsPrivateKeyGeneratorBuilder::<Kerl>::default()
+            .security_level(WotsSecurityLevel::Medium)
+            .build()
+            .unwrap()
+            .generate(&seed, 3)
+            .unwrap()
+            .generate_public_key()
+            .unwrap()
+            .trits()
+            .to_owned(),
+    )
+    .unwrap();
 
-    println!(
-        "{:?}",
-        address.to_inner().as_i8_slice().trytes()
-    );
-    Ok(())
+    println!("{}", address.to_inner().as_i8_slice().trytes().unwrap());
 }
 
-#[smol_potat::main]
-async fn main() -> Result<()> {
+fn main() {
     for _ in 1..10 {
-        get_new_address().await?;
+        get_unchecked_address();
     }
-
-    Ok(())
 }
