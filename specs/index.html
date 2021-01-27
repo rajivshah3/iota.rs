@@ -1,0 +1,812 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js iota">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Specification - IOTA Client Library</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="../favicon.png">
+        
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "iota";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('iota')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../welcome.html"><strong aria-hidden="true">1.</strong> Welcome</a></li><li class="chapter-item expanded "><a href="../overview/index.html"><strong aria-hidden="true">2.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../libraries/index.html"><strong aria-hidden="true">3.</strong> Libraries</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../libraries/rust/index.html"><strong aria-hidden="true">3.1.</strong> Rust</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../libraries/rust/getting_started.html"><strong aria-hidden="true">3.1.1.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../libraries/rust/examles.html"><strong aria-hidden="true">3.1.2.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../libraries/rust/api_reference.html"><strong aria-hidden="true">3.1.3.</strong> API Reference</a></li><li class="chapter-item expanded "><a href="../libraries/rust/troubleshooting.html"><strong aria-hidden="true">3.1.4.</strong> Troubleshooting</a></li></ol></li><li class="chapter-item expanded "><a href="../libraries/nodejs/index.html"><strong aria-hidden="true">3.2.</strong> Node.js</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../libraries/nodejs/getting_started.html"><strong aria-hidden="true">3.2.1.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="../libraries/nodejs/examles.html"><strong aria-hidden="true">3.2.2.</strong> Examples</a></li><li class="chapter-item expanded "><a href="../libraries/nodejs/api_reference.html"><strong aria-hidden="true">3.2.3.</strong> API Reference</a></li><li class="chapter-item expanded "><a href="../libraries/nodejs/troubleshooting.html"><strong aria-hidden="true">3.2.4.</strong> Troubleshooting</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../specs/index.html" class="active"><strong aria-hidden="true">4.</strong> Specification</a></li><li class="chapter-item expanded "><a href="../contribute.html"><strong aria-hidden="true">5.</strong> Contribute</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">IOTA Client Library</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/iotaledger/iota.rs" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#high-level-api-specification" id="high-level-api-specification">High Level API Specification</a></h1>
+<h2><a class="header" href="#table-of-contents" id="table-of-contents">Table of Contents</a></h2>
+<ul>
+<li><a href="#Introduction">Introduction</a></li>
+<li><a href="#Builder">Builder</a></li>
+<li><a href="#General-high-level-API">General high level API</a>
+<ul>
+<li><a href="#send"><code>send</code></a></li>
+<li><a href="#get_message"><code>get_message</code></a></li>
+<li><a href="#find_messages"><code>find_messages</code></a></li>
+<li><a href="#get_unspent_address"><code>get_unspent_address</code></a></li>
+<li><a href="#find_addresses"><code>find_addresses</code></a></li>
+<li><a href="#get_balance"><code>get_balance</code></a></li>
+<li><a href="#get_address_balances"><code>get_address_balances</code></a></li>
+<li><a href="#subscriber"><code>subscriber</code></a></li>
+<li><a href="#retry"><code>retry</code></a></li>
+<li><a href="#reattach"><code>reattach</code></a></li>
+<li><a href="#promote"><code>promote</code></a></li>
+</ul>
+</li>
+<li><a href="#Full-node-API">Full node API</a>
+<ul>
+<li><a href="#get_health"><code>get_health</code></a></li>
+<li><a href="#get_info"><code>get_info</code></a></li>
+<li><a href="#get_tips"><code>get_tips</code></a></li>
+<li><a href="#post_message"><code>post_message</code></a></li>
+<li><a href="#get_output"><code>get_output</code></a></li>
+<li><a href="#get_address"><code>get_address</code></a></li>
+<li><a href="#find_outputs"><code>find_outputs</code></a></li>
+<li><a href="#get_milestone"><code>get_milestone</code></a></li>
+</ul>
+</li>
+<li><a href="#Objects">Objects</a>
+<ul>
+<li>[Network]</li>
+<li><a href="#Seed">Seed</a></li>
+<li><a href="#Message">Message</a></li>
+<li>[Payload]</li>
+<li>[Output]</li>
+<li><a href="#Address">Address</a></li>
+<li><a href="#AddressBalancePair">AddressBalancePair</a></li>
+<li><a href="#Milestone">Milestone</a></li>
+<li><a href="#Api">API</a></li>
+<li><a href="#BrokerOptions">BrokerOptions</a></li>
+<li><a href="#Topic">Topic</a></li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#introduction" id="introduction">Introduction</a></h1>
+<p>This document specifies a user friendly API to be used in the client libraries. The main implementation will be in Rust which will receive automatically compiled client libraries in other languages via C or Webassembly bindings. There are also many crates to support developers creating foreign function interfaces with native bindings.</p>
+<h1><a class="header" href="#builder" id="builder">Builder</a></h1>
+<p>The data structure to initialize the instance of the Higher level client library. This is always called first when starting a new interaction with the library. Note: This is the common approach to do initialization in Rust. Different languages might use different methods such as just calling an initialization function directly.</p>
+<h3><a class="header" href="#parameters" id="parameters">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Default Value</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>network</strong></td><td>✘</td><td>Testnet</td><td>&amp;str</td><td>The network name for example &quot;testnet2&quot; to define the network. If no node url is provided, some default nodes are used for the specified network.</td></tr>
+<tr><td><strong>node</strong></td><td>✘</td><td>None</td><td>&amp;str</td><td>The URL of a node to connect to; format: <code>https://node:port</code></td></tr>
+<tr><td><strong>nodes</strong></td><td>✘</td><td>None</td><td>&amp;[&amp;str]</td><td>A list of nodes to connect to; nodes are added with the <code>https://node:port</code> format. The amount of nodes specified in quorum_size are randomly selected from this node list to check for quorum based on the quorum threshold. If quorum_size is not given the full list of nodes is checked.</td></tr>
+<tr><td><strong>node_sync_interval</strong></td><td>✘</td><td>Duration::from_secs(60)</td><td>std::time::Duration</td><td>The interval in milliseconds to check for node health and sync</td></tr>
+<tr><td><strong>node_sync_disabled</strong></td><td>✘</td><td>false</td><td>bool</td><td>If disabled also unhealty nodes will be used</td></tr>
+<tr><td><strong>node_pool_urls</strong></td><td>None</td><td>✘</td><td>&amp;[String]</td><td>A list of node_pool_urls from which nodes are added. The amount of nodes specified in quorum_size are randomly selected from this node list to check for quorum based on the quorum threshold. If quorum_size is not given the full list of nodes is checked.</td></tr>
+<tr><td><strong>request_timeout</strong></td><td>✘</td><td>Duration::from_secs(30)</td><td>std::time::Duration</td><td>The amount of seconds a request can be outstanding to a node before it's considered timed out</td></tr>
+<tr><td><strong>api_timeout</strong></td><td>✘</td><td>Api::GetInfo: Duration::from_secs(2)),<br /> Api::GetHealth: Duration::from_secs(2),<br />Api::GetMilestone: Duration::from_secs(2),<br />Api::GetTips: Duration::from_secs(2),<br />Api::PostMessage: Duration::from_secs(2),<br />Api::PostMessageWithRemotePow: Duration::from_secs(30),<br />Api::GetOutput: Duration::from_secs(2)</td><td>HashMap&lt;<a href="#Api">Api</a>,<br /> std::time::Duration&gt;</td><td>The amount of milliseconds a request to a specific Api endpoint can be outstanding to a node before it's considered timed out.</td></tr>
+<tr><td><strong>local_pow</strong></td><td>✘</td><td>True</td><td>bool</td><td>If not defined it defaults to local PoW to offload node load times</td></tr>
+<tr><td><strong>mqtt_broker_options</strong></td><td>✘</td><td>True,<br />Duration::from_secs(30),<br />True</td><td><a href="#BrokerOptions">BrokerOptions</a></td><td>If not defined the default values will be used, use_ws: false will try to connect over tcp</td></tr>
+</tbody></table>
+<ul>
+<li>Note that there must be at least one node to build the instance successfully.</li>
+</ul>
+<h3><a class="header" href="#return" id="return">Return</a></h3>
+<p>Finalize the builder with <code>finish()</code> will run the instance in the background. Users don’t need to worry about the return object handling.</p>
+<h2><a class="header" href="#on-initialization" id="on-initialization">On initialization</a></h2>
+<p>On initialisation, call getNodeInfo API. Check the health of each node in the node list, and put healty nodes, matching the PoW settings and network in a synced nodelist.</p>
+<table><thead><tr><th>Node metadata</th><th>Description</th></tr></thead><tbody>
+<tr><td>network</td><td>If this parameter does not match the global builder parameter, don't add it to the synced nodelist.</td></tr>
+<tr><td>pow</td><td>If the global local_pow parameter is set to false, then put only nodes with the PoW feature in the synced nodelist.</td></tr>
+</tbody></table>
+<h2><a class="header" href="#sync-process" id="sync-process">Sync Process</a></h2>
+<p>When a <code>Client</code> instance (The instance which is used for calling the client APIs) is built, the status of each node listed is checked. If the returned status of the node information is healthy, which means the node is synced, then this node will be pushed into a <code>synced_nodes</code> list. The rust-like pseudo code of <code>synced_nodes</code> construction process follows. The process of syncing a node is repeated every 60 seconds or at the interval specified in the <code>node_sync_interval</code> argument of the initializer if set.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>synced_nodes = Vec::new()
+for node in node_pool_urls{
+   status = Client.get_info(node).await?;
+   if status == healthy{
+      synced_nodes.push(node)
+   }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h1><a class="header" href="#general-high-level-api" id="general-high-level-api"><code>General high level API</code></a></h1>
+<p>Here is the high level abstraction API collection with sensible default values for users easy to use.</p>
+<h2><a class="header" href="#send" id="send"><code>send()</code></a></h2>
+<p>A generic send function for easily sending a message.</p>
+<h3><a class="header" href="#parameters-1" id="parameters-1">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Default</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>seed</strong></td><td>✘</td><td>None</td><td><a href="#Seed">Seed</a></td><td>The seed of the account we are going to spend, only needed for transactions</td></tr>
+<tr><td><strong>account_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>The account index, responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/✘'/0'/0'</code>.</td></tr>
+<tr><td><strong>initial_address_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>The index from where to start looking for balance. Responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/0'/0'/✘'</code>.</td></tr>
+<tr><td><strong>input</strong></td><td>✘</td><td>None</td><td>UTXOInput</td><td>Users can manually select their UTXOInputs instead of having automatically selected inputs.</td></tr>
+<tr><td><strong>input_range</strong></td><td>✘</td><td>0..100</td><td>Range</td><td>Custom range to search for the input addresses if custom inputs are provided.</td></tr>
+<tr><td><strong>output</strong></td><td>✘</td><td>None</td><td>address: &amp;<a href="#Bech32Address">Bech32Address</a>,<br />amount: u64</td><td>Address to send to and amount to send. Address needs to be Bech32 encoded.</td></tr>
+<tr><td><strong>output_hex</strong></td><td>✘</td><td>None</td><td>address: &amp;str,<br />amount: u64</td><td>Address to send to and amount to send. Address needs to be hex encoded.</td></tr>
+<tr><td><strong>index</strong></td><td>✘</td><td>None</td><td>&amp;str</td><td>An optional indexation key for an indexation payload. 1-64 bytes long.</td></tr>
+<tr><td><strong>data</strong></td><td>✘</td><td>None</td><td>Vec<u8></td><td>Optional data for the indexation payload.</td></tr>
+<tr><td><strong>parent</strong></td><td>✘</td><td>None</td><td><a href="#MessageId">MessageId</a></td><td>An optional parent <a href="#MessageId">MessageId</a> to be used as one parent.</td></tr>
+<tr><td><strong>network_id</strong></td><td>✘</td><td>None</td><td>u64</td><td>Optional network id, if not set it will be used from the nodeinfo.</td></tr>
+</tbody></table>
+<p>Depending on the provided values this function will create a message with:</p>
+<ul>
+<li>no payload</li>
+<li>an indexation payload</li>
+<li>a transaction payload</li>
+<li>a transaction payload containing an indexation payload</li>
+</ul>
+<h3><a class="header" href="#return-1" id="return-1">Return</a></h3>
+<p>The <a href="#Message">Message</a> object we build.</p>
+<h3><a class="header" href="#implementation-details" id="implementation-details">Implementation Details</a></h3>
+<ul>
+<li>Validate inputs, such as address and seed to check if they are correct.</li>
+<li>Check if account balance is bigger or equal to the value using method similar to <a href="#get_balance"><code>get_balance()</code></a>;</li>
+<li>Build and validate the message with signed transaction payload accordingly;</li>
+<li>Get tips using <a href="#get_tips"><code>get_tips()</code></a>;</li>
+<li>Perform proof-of-work locally (if not set to remote);</li>
+<li>Send the message using <a href="#post_messages"><code>post_messages()</code></a>;</li>
+</ul>
+<h2><a class="header" href="#get_message" id="get_message"><code>get_message()</code></a></h2>
+<p>(<code>GET /api/v1/messages</code>)</p>
+<p>Endpoint collection all about GET messages.</p>
+<h3><a class="header" href="#parameters-2" id="parameters-2">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>message_id</strong></td><td>✔</td><td><a href="#MessageId">MessageId</a></td><td>The identifier of message.</td></tr>
+<tr><td><strong>index</strong></td><td>✔</td><td>str</td><td>An indexation key.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns" id="returns">Returns</a></h3>
+<p>Depend on the final calling method, users could get different results they need:</p>
+<ul>
+<li><code>metadata(&amp;MessageId)</code>: Return <a href="#MessageMetadata">MessageMetadata</a> of the message.</li>
+<li><code>data(&amp;MessageId)</code>: Return a <a href="#Message">Message</a> object.</li>
+<li><code>raw(&amp;MessageId)</code>: Return the raw data of given message.</li>
+<li><code>children(&amp;MessageId)</code>: Return the list of <a href="#MessageId">MessageId</a>s that reference a message by its identifier.</li>
+<li><code>index(&amp;str)</code> : Return the list of <a href="#MessageId">MessageId</a>s that have this str as indexation key</li>
+</ul>
+<h2><a class="header" href="#find_messages" id="find_messages"><code>find_messages()</code></a></h2>
+<p>Find all messages by provided message IDs.</p>
+<h3><a class="header" href="#parameters-3" id="parameters-3">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>indexation_keys</strong></td><td>✘</td><td>[String]</td><td>The index key of the indexation payload.</td></tr>
+<tr><td><strong>message_ids</strong></td><td>✘</td><td>[<a href="#MessageId">MessageId</a>]</td><td>The identifier of message.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-1" id="returns-1">Returns</a></h3>
+<p>A vector of <a href="#Message">Message</a> Object.</p>
+<h2><a class="header" href="#get_unspent_address" id="get_unspent_address"><code>get_unspent_address()</code></a></h2>
+<p>Return a valid unspent public Bech32 encoded address.</p>
+<h3><a class="header" href="#parameters-4" id="parameters-4">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Default</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>seed</strong></td><td>✔</td><td>-</td><td><a href="#Seed">Seed</a></td><td>The seed we want to use.</td></tr>
+<tr><td><strong>account_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>The account index, responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/✘'/0'/0'</code>.</td></tr>
+<tr><td><strong>initial_address_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>Start index of the addresses to search. Responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/0'/0'/✘'</code>.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#return-2" id="return-2">Return</a></h3>
+<p>Return a tuple with type of <code>(Bech32Address, usize)</code> as the address and corresponding index in the account.</p>
+<h3><a class="header" href="#implementation-details-1" id="implementation-details-1">Implementation Details</a></h3>
+<p>Following are the steps for implementing this method:</p>
+<ul>
+<li>Start generating addresses with given account index and starting index. We will have a default <a href="https://blog.blockonomics.co/bitcoin-what-is-this-gap-limit-4f098e52d7e1">gap limit</a> of 20 at a time;</li>
+<li>Check for balances on the generated addresses using <a href="#find_outputs"><code>find_outputs()</code></a> and keep track of the positive balances;</li>
+<li>Repeat the above step till there's an unspent address found;</li>
+<li>Return the address with corresponding index on the wallet chain;</li>
+</ul>
+<h2><a class="header" href="#find_addresses" id="find_addresses"><code>find_addresses()</code></a></h2>
+<p>Return a list of addresses from the seed regardless of their validity.</p>
+<h3><a class="header" href="#parameters-5" id="parameters-5">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Default</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>seed</strong></td><td>✔</td><td>None</td><td><a href="#Seed">Seed</a></td><td>The seed we want to search for.</td></tr>
+<tr><td><strong>account_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>The account index, responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/✘'/0'/0'</code>.</td></tr>
+<tr><td><strong>range</strong></td><td>✘</td><td>None</td><td>std::ops::Range</td><td>Range indices of the addresses we want to search for. Default is (0..20)</td></tr>
+<tr><td><strong>get_all</strong></td><td>✘</td><td>✘</td><td>✘</td><td>Get public and <a href="https://bitcoin.stackexchange.com/questions/75033/bip44-and-change-addresses">change addresses</a>. Will return Vec&lt;(<a href="#Bech32Address">Bech32Address</a>, bool)&gt;, where the bool is indicating whether it's a change address</td></tr>
+</tbody></table>
+<h3><a class="header" href="#return-3" id="return-3">Return</a></h3>
+<p>Vec&lt;<a href="#Bech32Address">Bech32Address</a>&gt;, with the public addresses</p>
+<h2><a class="header" href="#get_balance" id="get_balance"><code>get_balance()</code></a></h2>
+<p>Return the balance for a provided seed and its wallet account index.</p>
+<h3><a class="header" href="#parameters-6" id="parameters-6">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Default</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>seed</strong></td><td>✔</td><td>-</td><td><a href="#Seed">Seed</a></td><td>The seed we want to search for.</td></tr>
+<tr><td><strong>account_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>The account index, responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/✘'/0'/0'</code>.</td></tr>
+<tr><td><strong>initial_address_index</strong></td><td>✘</td><td>0</td><td>usize</td><td>Start index from which to generate addresses. Default is 0. Responsible for the value <code>✘</code> in the Bip32Path <code>m/44'/4218'/0'/0'/✘'</code>.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#return-4" id="return-4">Return</a></h3>
+<p>Total account balance.</p>
+<h3><a class="header" href="#implementation-details-2" id="implementation-details-2">Implementation Details</a></h3>
+<p>Following are the steps for implementing this method:</p>
+<ul>
+<li>Start generating addresses with given wallet account index and starting index. We will have a default <a href="https://blog.blockonomics.co/bitcoin-what-is-this-gap-limit-4f098e52d7e1">gap limit</a> of 20 at a time;</li>
+<li>Check for balances on the generated addresses using <a href="#find_outputs"><code>find_outputs()</code></a> and keep track of the positive balances;</li>
+<li>Repeat the above step till an address of zero balance is found;</li>
+<li>Accumulate the positive balances and return the result.</li>
+</ul>
+<h2><a class="header" href="#get_address_balances" id="get_address_balances"><code>get_address_balances()</code></a></h2>
+<p>Return the balance in iota for the given addresses; No seed or security level needed to do this since we are only checking and already know the addresses.</p>
+<h3><a class="header" href="#parameters-7" id="parameters-7">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>addresses</strong></td><td>✔</td><td>[<a href="#Bech32Address">Bech32Address</a>]</td><td>List of Bech32 encoded addresses.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#return-5" id="return-5">Return</a></h3>
+<p>A list of tuples with value of <a href="#AddressBalancePair">AddressBalancePair</a>. The usize is the balance of the address accordingly.</p>
+<h3><a class="header" href="#implementation-details-3" id="implementation-details-3">Implementation details:</a></h3>
+<p>Following are the steps for implementing this method:</p>
+<ul>
+<li>Validate <em>address</em> semantics;</li>
+<li>Get latest balance for the provided address using <a href="#find_outputs"><code>find_outputs()</code></a> with addresses as parameter;</li>
+<li>Return the list of Output which contains corresponding pairs of address and balance.</li>
+</ul>
+<h2><a class="header" href="#subscriber" id="subscriber"><code>subscriber()</code></a></h2>
+<p>Subscribe to a node event <a href="#Topic">Topic</a> (MQTT)</p>
+<p>Required: one of</p>
+<ul>
+<li>
+<p><code>topic()</code>: Add a new <a href="#Topic">Topic</a> to the list.</p>
+</li>
+<li>
+<p><code>topics()</code>: Add a vector of <a href="#Topic">Topic</a> to the list.</p>
+</li>
+<li>
+<p><code>subscribe()</code>: Subscribe to the given topics with the callback, which will be called every time when the topic is detected.</p>
+</li>
+<li>
+<p><code>unsubscribe()</code>: Unsubscribes from all subscriptions.</p>
+</li>
+<li>
+<p><code>disconnect()</code>: Disconnects the broker. This will clear the stored topic handlers and close the MQTT connection.</p>
+</li>
+</ul>
+<h3><a class="header" href="#returns-2" id="returns-2">Returns</a></h3>
+<p>Nothing apart from a Ok(()) result if successful</p>
+<h2><a class="header" href="#retry" id="retry"><code>retry()</code></a></h2>
+<p>Retries (promotes or reattaches) a message for provided <a href="#MessageId">MessageId</a> if the node suggests it. The need to use this function should be low, because the confirmation throughput of the node is expected to be quite high.</p>
+<h3><a class="header" href="#parameters-8" id="parameters-8">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>message_id</strong></td><td>✔</td><td><a href="#MessageId">MessageId</a></td><td>The identifier of message.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-3" id="returns-3">Returns:</a></h3>
+<p>A tuple with the newly promoted or reattached <code>(MessageId,  Message)</code>.</p>
+<h3><a class="header" href="#implementation-details-4" id="implementation-details-4">Implementation Details</a></h3>
+<p>Following are the steps for implementing this method:</p>
+<ul>
+<li>Only unconfirmed messages should be allowed to retry. The method should validate the confirmation state of the provided messages. If a message id of a confirmed message is provided, the method should error out;</li>
+<li>The method should also validate if a retry is necessary. This can be done by leveraging the <code>/messages/{messageId}/metadata</code> endpoint (already available through <a href="#get_message">get_message</a>). See <a href="https://github.com/iotaledger/trinity-wallet/blob/develop/src/shared/libs/iota/transfers.js#L105-L131">this</a> implementation for reference;</li>
+<li>Use <a href="#reattach">reattach</a> or <a href="#promote">promote</a> accordingly.</li>
+</ul>
+<h2><a class="header" href="#reattach" id="reattach"><code>reattach()</code></a></h2>
+<p>Depends on <a href="#find_messages">find_messages</a>, <a href="#get_message">get_message</a> and <a href="#post_message">post_message</a>.</p>
+<p>Reattaches a message. The method should validate if a reattachment is necessary through <a href="#get_message">get_message</a>. If not, the method should error out and should not allow unnecessary reattachments.</p>
+<h3><a class="header" href="#parameters-9" id="parameters-9">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>message_id</strong></td><td>✔</td><td><a href="#MessageId">MessageId</a></td><td>The identifier of message.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-4" id="returns-4">Returns</a></h3>
+<p>A tuple with the newly reattached <code>(MessageId,  Message)</code>.</p>
+<h2><a class="header" href="#promote" id="promote"><code>promote()</code></a></h2>
+<p>Depends on <a href="#find_messages">find_messages</a>, <a href="#get_message">get_message</a> and <a href="#post_message">post_message</a>.</p>
+<p>Promotes a message. The method should validate if a promotion is necessary through <a href="#get_message">get_message</a>. If not, the method should error out and should not allow unnecessary promotions.</p>
+<h3><a class="header" href="#parameters-10" id="parameters-10">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>message_id</strong></td><td>✔</td><td><a href="#MessageId">MessageId</a></td><td>The identifier of message.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-5" id="returns-5">Returns</a></h3>
+<p>A tuple with the newly promoted <code>(MessageId,  Message)</code>.</p>
+<h1><a class="header" href="#full-node-api" id="full-node-api">Full node API</a></h1>
+<p>Full node API of Bee and HORNET will still be public. Users who know these relative low level Restful API can still call them directly if they are confident and think it’s good for them. Note that both Bee and HORNET haven't finalized their APIs either. Following items and signatures might change later.</p>
+<h2><a class="header" href="#get_health" id="get_health"><code>get_health()</code></a></h2>
+<p>(<code>GET /health</code>)</p>
+<p>Returns the health of the node, which can be used for load-balancing or uptime monitoring.</p>
+<h3><a class="header" href="#parameters-11" id="parameters-11">Parameters</a></h3>
+<p>None</p>
+<h3><a class="header" href="#returns-6" id="returns-6">Returns</a></h3>
+<p>Boolean to indicate if node is healthy.</p>
+<h2><a class="header" href="#get_info" id="get_info"><code>get_info()</code></a></h2>
+<p>(<code>GET /api/v1/info</code>)</p>
+<p>Returns information about the node.</p>
+<h3><a class="header" href="#parameters-12" id="parameters-12">Parameters</a></h3>
+<p>None</p>
+<h3><a class="header" href="#returns-7" id="returns-7">Returns</a></h3>
+<p>A Response Object similar to this:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct NodeInfo {
+    pub name: String,
+    pub version: String,
+    pub is_healthy: bool,
+    pub network_id: String,
+    pub latest_milestone_index: usize,
+    pub min_pow_score: f64,
+    pub solid_milestone_index: usize,
+    pub pruning_index: usize,
+    pub features: Vec&lt;String&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#get_tips" id="get_tips"><code>get_tips()</code></a></h2>
+<p>(<code>GET /tips</code>)</p>
+<p>Returns two non-lazy tips. In case the node can only provide one tip, tip1 and tip2 are identical.</p>
+<h3><a class="header" href="#parameters-13" id="parameters-13">Parameters</a></h3>
+<p>None</p>
+<h3><a class="header" href="#returns-8" id="returns-8">Returns</a></h3>
+<p>A tuple with two <a href="#MessageId">MessageId</a>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>(MessageId, MessageId)
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#post_message" id="post_message"><code>post_message()</code></a></h2>
+<p>(<code>POST /message</code>)</p>
+<p>Submit a message. The node takes care of missing fields and tries to build the message. On success, the message will be stored in the Tangle. This endpoint will return the identifier of the message.</p>
+<h3><a class="header" href="#parameters-14" id="parameters-14">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>message</strong></td><td>✔</td><td><a href="#Message">Message</a></td><td>The message object.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-9" id="returns-9">Returns</a></h3>
+<p>The <a href="#MessageId">MessageId</a> of the message object.</p>
+<h2><a class="header" href="#get_output" id="get_output"><code>get_output()</code></a></h2>
+<p>(<code>GET /outputs</code>)</p>
+<p>Get the producer of the output, the corresponding address, amount and spend status of an output. This information can only be retrieved for outputs which are part of a confirmed transaction.</p>
+<h3><a class="header" href="#parameters-15" id="parameters-15">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>output_id</strong></td><td>✔</td><td>UTXOInput</td><td>Identifier of the output.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-10" id="returns-10">Returns</a></h3>
+<p>An <a href="#OutputMetadata">OutputMetadata</a> that contains various information about the output.</p>
+<h2><a class="header" href="#get_address" id="get_address"><code>get_address()</code></a></h2>
+<p>(<code>GET /addresses</code>)</p>
+<h3><a class="header" href="#parameters-16" id="parameters-16">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>address</strong></td><td>✔</td><td><a href="#Bech32Address">Bech32Address</a></td><td>The address to search for.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-11" id="returns-11">Returns</a></h3>
+<p>Depend on the final calling method, users could get different outputs they need:</p>
+<ul>
+<li><code>balance()</code>: Return confirmed balance of the address.</li>
+<li><code>outputs()</code>: Return UTXOInput array (transaction IDs with corresponding output index).</li>
+</ul>
+<h2><a class="header" href="#find_outputs" id="find_outputs"><code>find_outputs()</code></a></h2>
+<p>Find all outputs based on the requests criteria.</p>
+<h3><a class="header" href="#parameters-17" id="parameters-17">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>output_id</strong></td><td>✘</td><td>[UTXOInput]</td><td>The identifier of output.</td></tr>
+<tr><td><strong>addresses</strong></td><td>✘</td><td>[<a href="#Bech32Address">Bech32Address</a>]</td><td>The Bech32 encoded address.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-12" id="returns-12">Returns</a></h3>
+<p>A vector of <a href="#OutputMetadata">OutputMetadata</a>.</p>
+<h2><a class="header" href="#get_milestone" id="get_milestone"><code>get_milestone()</code></a></h2>
+<p>(<code>GET /milestones</code>)</p>
+<p>Get the milestone by the given index.</p>
+<h3><a class="header" href="#parameters-18" id="parameters-18">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>index</strong></td><td>✔</td><td>u64</td><td>Index of the milestone.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-13" id="returns-13">Returns</a></h3>
+<p>An <a href="#Milestone">Milestone</a> object.</p>
+<h1><a class="header" href="#objects" id="objects">Objects</a></h1>
+<p>Here are the objects used in the API above. They aim to provide a secure way to handle certain data structures specified in the Iota stack.</p>
+<h2><a class="header" href="#messageid" id="messageid"><code>MessageId</code></a></h2>
+<p>MessageId is a 32 bytes array which can represent as hex string.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct MessageId([u8; MESSAGE_ID_LENGTH]);
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#seed" id="seed"><code>Seed</code></a></h2>
+<pre><code class="language-Rust">pub enum Seed {
+    /// Ed25519 variant
+    Ed25519(Ed25519Seed)
+}
+</code></pre>
+<p>An IOTA seed that inner structure is omitted. Users can create this type by passing a String. It will verify and return an error if it’s not valid. |</p>
+<h2><a class="header" href="#message" id="message"><code>Message</code></a></h2>
+<p>The message object returned by various functions; based on the <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">RFC</a> for the Message object. Here's the brief overview of each components in Message type would look like:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct Message {
+    parent1: MessageId,
+    parent2: MessageId,
+    payload: Option&lt;Payload&gt;,
+    nonce: u64,
+}
+
+enum Payload {
+    Transaction(Box&lt;Transaction&gt;),
+    Milestone(Box&lt;Milestone&gt;),
+    Indexation(Box&lt;Indexation&gt;),
+}
+
+struct Transaction {
+    pub essence: TransactionPayloadEssence,
+    pub unlock_blocks: Vec&lt;UnlockBlock&gt;,
+}
+
+struct Milestone {
+    essence: MilestoneEssence,
+    signatures: Vec&lt;Box&lt;[u8]&gt;&gt;,
+}
+
+struct Indexation {
+    index: String,
+    data: Box&lt;[u8]&gt;,
+}
+
+struct TransactionPayloadEssence {
+    pub(crate) inputs: Box&lt;[Input]&gt;,
+    pub(crate) outputs: Box&lt;[Output]&gt;,
+    pub(crate) payload: Option&lt;Payload&gt;,
+}
+
+enum Input {
+    UTXO(UTXOInput(OutputId)),
+}
+
+struct OutputId {
+    transaction_id: TransactionId,
+    index: u16,
+}
+
+enum Output {
+    SignatureLockedSingle(SignatureLockedSingleOutput),
+}
+
+struct SignatureLockedSingleOutput {
+    address: Address,
+    amount: u64,
+}
+
+enum UnlockBlock {
+    Signature(SignatureUnlock),
+    Reference(ReferenceUnlock),
+}
+
+enum SignatureUnlock {
+    Ed25519(Ed25519Signature),
+}
+
+struct Ed25519Signature {
+    public_key: [u8; 32],
+    signature: Box&lt;[u8]&gt;,
+}
+
+struct ReferenceUnlock(u16);
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#messagemetadata" id="messagemetadata"><code>MessageMetadata</code></a></h2>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MessageMetadata {
+    /// Message ID
+    pub message_id: String,
+    /// Message ID of parent1
+    pub parent1: String,
+    /// Message ID of parent2
+    pub parent2: String,
+    /// Solid status
+    pub is_solid: bool,
+    /// Should promote
+    pub should_promote: Option&lt;bool&gt;,
+    /// Should reattach
+    pub should_reattach: Option&lt;bool&gt;,
+    /// Referenced by milestone index
+    pub referenced_by_milestone_index: Option&lt;u64&gt;,
+    /// Ledger inclusion state
+    pub ledger_inclusion_state: Option&lt;String&gt;,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#outputmetadata" id="outputmetadata"><code>OutputMetadata</code></a></h2>
+<p>The metadata of an output:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct OutputMetadata {
+    /// Message ID of the output
+    pub message_id: Vec&lt;u8&gt;,
+    /// Transaction ID of the output
+    pub transaction_id: Vec&lt;u8&gt;,
+    /// Output index.
+    pub output_index: u16,
+    /// Spend status of the output
+    pub is_spent: bool,
+    /// Corresponding address
+    pub address: Address,
+    /// Balance amount
+    pub amount: u64,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#bech32address" id="bech32address"><code>Bech32Address</code></a></h2>
+<p>Wrapper type to be used in most cases where an address is involved.</p>
+<pre><code class="language-Rust">pub struct Bech32Address(pub String);
+</code></pre>
+<h2><a class="header" href="#address" id="address"><code>Address</code></a></h2>
+<p>An Ed25519 address can be encoded in Bech32 or Hex, with Bech32 being preferred and also used in most functions.</p>
+<pre><code class="language-Rust">pub enum Address {
+    Ed25519(Ed25519Address),
+}
+</code></pre>
+<h2><a class="header" href="#addressbalancepair" id="addressbalancepair"><code>AddressBalancePair</code></a></h2>
+<pre><code class="language-Rust">pub struct AddressBalancePair {
+    /// Address
+    pub address: Bech32Address,
+    /// Balance in the address
+    pub balance: u64,
+}
+</code></pre>
+<h2><a class="header" href="#milestone" id="milestone"><code>Milestone</code></a></h2>
+<p>A milestone metadata.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct MilestoneMetadata {
+    /// Milestone index
+    pub milestone_index: u64,
+    /// Milestone ID
+    pub message_id: String,
+    /// Timestamp
+    pub timestamp: u64,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2><a class="header" href="#api" id="api"><code>Api</code></a></h2>
+<pre><code class="language-Rust">pub enum Api {
+    /// `get_health` API
+    GetHealth,
+    /// `get_info`API
+    GetInfo,
+    /// `get_tips` API
+    GetTips,
+    /// `post_message` API
+    PostMessage,
+    /// `post_message` API with remote pow
+    PostMessageWithRemotePow,
+    /// `get_output` API
+    GetOutput,
+    /// `get_milestone` API
+    GetMilestone,
+}
+</code></pre>
+<h2><a class="header" href="#brokeroptions" id="brokeroptions"><code>BrokerOptions</code></a></h2>
+<pre><code class="language-Rust">pub struct BrokerOptions {
+    #[serde(default = &quot;default_broker_automatic_disconnect&quot;, rename = &quot;automaticDisconnect&quot;)]
+    pub(crate) automatic_disconnect: bool,
+    #[serde(default = &quot;default_broker_timeout&quot;)]
+    pub(crate) timeout: std::time::Duration,
+    #[serde(default = &quot;default_use_ws&quot;)]
+    pub(crate) use_ws: bool,
+}
+</code></pre>
+<h2><a class="header" href="#topic" id="topic"><code>Topic</code></a></h2>
+<p>A string with the exact MQTT topic to monitor, can have one of the following variations:</p>
+<pre><code>milestones/latest
+milestones/solid
+
+messages
+messages/referenced
+messages/indexation/{index}
+messages/{messageId}/metadata
+
+outputs/{outputId}
+
+addresses/{address}/outputs
+addresses/ed25519/{address}/outputs
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../libraries/nodejs/troubleshooting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../contribute.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../libraries/nodejs/troubleshooting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../contribute.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
