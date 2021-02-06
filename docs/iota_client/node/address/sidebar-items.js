@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["GetAddressBuilder","Builder of GET /api/v1/address/{address} endpoint"]]});

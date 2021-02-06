@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BalanceForAddressResponse","Response of GET /api/v1/addresses/{address}"]]});
