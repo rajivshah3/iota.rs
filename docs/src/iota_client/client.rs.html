@@ -819,6 +819,51 @@
 <span id="816">816</span>
 <span id="817">817</span>
 <span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -837,7 +882,9 @@
 <span class="kw">use</span> <span class="ident">bee_rest_api</span>::{
     <span class="ident">handlers</span>::{
         <span class="ident">balance_ed25519</span>::<span class="ident">BalanceForAddressResponse</span>, <span class="ident">info</span>::<span class="ident">InfoResponse</span> <span class="kw">as</span> <span class="ident">NodeInfo</span>,
-        <span class="ident">milestone</span>::<span class="ident">MilestoneResponse</span> <span class="kw">as</span> <span class="ident">MilestoneResponseDto</span>, <span class="ident">output</span>::<span class="ident">OutputResponse</span>, <span class="ident">tips</span>::<span class="ident">TipsResponse</span>,
+        <span class="ident">milestone</span>::<span class="ident">MilestoneResponse</span> <span class="kw">as</span> <span class="ident">MilestoneResponseDto</span>,
+        <span class="ident">milestone_utxo_changes</span>::<span class="ident">MilestoneUtxoChanges</span> <span class="kw">as</span> <span class="ident">MilestoneUTXOChanges</span>, <span class="ident">output</span>::<span class="ident">OutputResponse</span>,
+        <span class="ident">tips</span>::<span class="ident">TipsResponse</span>,
     },
     <span class="ident">types</span>::{<span class="ident">MessageDto</span>, <span class="ident">PeerDto</span>},
 };
@@ -860,7 +907,7 @@
     <span class="ident">convert</span>::{<span class="ident">TryFrom</span>, <span class="ident">TryInto</span>},
     <span class="ident">hash</span>::<span class="ident">Hash</span>,
     <span class="ident">str</span>::<span class="ident">FromStr</span>,
-    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">RwLock</span>},
+    <span class="ident">sync</span>::{<span class="ident">atomic</span>::<span class="ident">AtomicBool</span>, <span class="ident">Arc</span>, <span class="ident">RwLock</span>},
     <span class="ident">time</span>::<span class="ident">Duration</span>,
 };
 
@@ -991,12 +1038,17 @@
     <span class="kw">type</span> <span class="ident">Builder</span> <span class="op">=</span> <span class="ident">ClientMinerBuilder</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">nonce</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">target_score</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nonce</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
+        <span class="ident">target_score</span>: <span class="ident">f64</span>,
+        <span class="ident">done</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">AtomicBool</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">local_pow</span> {
             <span class="ident">MinerBuilder</span>::<span class="ident">new</span>()
                 .<span class="ident">with_num_workers</span>(<span class="ident">num_cpus</span>::<span class="ident">get</span>())
                 .<span class="ident">finish</span>()
-                .<span class="ident">nonce</span>(<span class="ident">bytes</span>, <span class="ident">target_score</span>)
+                .<span class="ident">nonce</span>(<span class="ident">bytes</span>, <span class="ident">target_score</span>, <span class="ident">done</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="kw">crate</span>::<span class="ident">Error</span>::<span class="ident">Pow</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="number">0</span>)
@@ -1195,24 +1247,47 @@
 
     <span class="doccomment">/// Gets the network id of the node we&#39;re connecting to.</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_network_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">network_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">network_id</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">id</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">node_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">network_id</span> <span class="op">=</span> <span class="ident">hash_network</span>(<span class="kw-2">&amp;</span><span class="ident">node_info</span>.<span class="ident">network_id</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client_network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
-                <span class="ident">client_network_info</span>.<span class="ident">network_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">network_id</span>);
-                <span class="ident">network_id</span>
-            }
-        };
-        <span class="prelude-val">Ok</span>(<span class="ident">network_id</span>)
+        <span class="kw">let</span> <span class="ident">network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">network_info</span>.<span class="ident">network_id</span>.<span class="ident">unwrap</span>())
     }
 
     <span class="doccomment">/// Gets the miner to use based on the PoW setting</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pow_provider</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientMiner</span> {
-        <span class="ident">ClientMinerBuilder</span>::<span class="ident">new</span>()
-            .<span class="ident">with_local_pow</span>(<span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">local_pow</span>)
-            .<span class="ident">finish</span>()
+        <span class="ident">ClientMinerBuilder</span>::<span class="ident">new</span>().<span class="ident">with_local_pow</span>(<span class="self">self</span>.<span class="ident">get_local_pow</span>()).<span class="ident">finish</span>()
+    }
+
+    <span class="doccomment">/// Gets the network related information and if it&#39;s the default one, sync it first.</span>
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_synced_network_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NetworkInfo</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">network_id</span>.<span class="ident">is_none</span>() {
+            <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">network_id</span> <span class="op">=</span> <span class="ident">hash_network</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">network_id</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client_network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
+            <span class="ident">client_network_info</span>.<span class="ident">network_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">network_id</span>);
+            <span class="ident">client_network_info</span>.<span class="ident">min_pow_score</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">min_pow_score</span>;
+            <span class="ident">client_network_info</span>.<span class="ident">bech32_hrp</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">bech32_hrp</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_network_info</span>())
+    }
+
+    <span class="doccomment">/// returns the min pow score</span>
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_bech32_hrp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">bech32_hrp</span>)
+    }
+
+    <span class="doccomment">/// returns the min pow score</span>
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_min_pow_score</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">min_pow_score</span>)
+    }
+
+    <span class="doccomment">/// returns the tips interval</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tips_interval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+        <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">tips_interval</span>
+    }
+
+    <span class="doccomment">/// returns the local pow</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_local_pow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">local_pow</span>
     }
 
     <span class="doccomment">/// Gets the network related information such as network_id and min_pow_score</span>
@@ -1353,7 +1428,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_node</span>()<span class="question-mark">?</span>;
         <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="string">&quot;api/v1/messages&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">local_pow</span> {
+        <span class="kw">let</span> <span class="ident">timeout</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_local_pow</span>() {
             <span class="self">self</span>.<span class="ident">get_timeout</span>(<span class="ident">Api</span>::<span class="ident">PostMessage</span>)
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">get_timeout</span>(<span class="ident">Api</span>::<span class="ident">PostMessageWithRemotePow</span>)
@@ -1414,6 +1489,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">output_response</span>.<span class="ident">data</span>)
         })
     }
+
     <span class="doccomment">/// Find all outputs based on the requests criteria. This method will try to query multiple nodes if</span>
     <span class="doccomment">/// the request amount exceed individual node limit.</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">find_outputs</span>(
@@ -1479,6 +1555,27 @@
         })
     }
 
+    <span class="doccomment">/// GET /api/v1/milestones/{index}/utxo-changes endpoint</span>
+    <span class="doccomment">/// Get the milestone by the given index.</span>
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_milestone_utxo_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MilestoneUTXOChanges</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_node</span>()<span class="question-mark">?</span>;
+        <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;api/v1/milestones/{}/utxo-changes&quot;</span>, <span class="ident">index</span>));
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">client</span>
+            .<span class="ident">get</span>(<span class="ident">url</span>)
+            .<span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">get_timeout</span>(<span class="ident">Api</span>::<span class="ident">GetMilestone</span>))
+            .<span class="ident">send</span>()
+            .<span class="ident">await</span><span class="question-mark">?</span>;
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">MilestoneUTXOChangesWrapper</span> {
+            <span class="ident">data</span>: <span class="ident">MilestoneUTXOChanges</span>,
+        }
+        <span class="macro">parse_response</span><span class="macro">!</span>(<span class="ident">resp</span>, <span class="number">200</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">let</span> <span class="ident">milestone</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">json</span>::<span class="op">&lt;</span><span class="ident">MilestoneUTXOChangesWrapper</span><span class="op">&gt;</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">data</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">milestone</span>)
+        })
+    }
+
     <span class="doccomment">/// Reattaches messages for provided message id. Messages can be reattached only if they are valid and haven&#39;t been</span>
     <span class="doccomment">/// confirmed for a while.</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">reattach</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">MessageId</span>, <span class="ident">Message</span>)<span class="op">&gt;</span> {
@@ -1495,20 +1592,12 @@
         <span class="comment">// Get the Message object by the MessageID.</span>
         <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_message</span>().<span class="ident">data</span>(<span class="ident">message_id</span>).<span class="ident">await</span><span class="question-mark">?</span>;
 
-        <span class="comment">// Change the fields of parents.</span>
-        <span class="kw">let</span> <span class="ident">tips</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_tips</span>().<span class="ident">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">reattach_message</span> <span class="op">=</span> <span class="ident">MessageBuilder</span>::<span class="op">&lt;</span><span class="ident">ClientMiner</span><span class="op">&gt;</span>::<span class="ident">new</span>()
-            .<span class="ident">with_network_id</span>(<span class="self">self</span>.<span class="ident">get_network_id</span>().<span class="ident">await</span><span class="question-mark">?</span>)
-            .<span class="ident">with_parents</span>(<span class="ident">tips</span>)
-            .<span class="ident">with_payload</span>(<span class="ident">message</span>.<span class="ident">payload</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">with_nonce_provider</span>(<span class="self">self</span>.<span class="ident">get_pow_provider</span>(), <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">min_pow_score</span>)
-            .<span class="ident">finish</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">TransactionError</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">reattach_message</span> <span class="op">=</span> <span class="ident">finish_pow</span>(<span class="self">self</span>, <span class="prelude-val">Some</span>(<span class="ident">message</span>.<span class="ident">payload</span>().<span class="ident">to_owned</span>().<span class="ident">unwrap</span>())).<span class="ident">await</span><span class="question-mark">?</span>;
 
         <span class="comment">// Post the modified</span>
         <span class="kw">let</span> <span class="ident">message_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">post_message</span>(<span class="kw-2">&amp;</span><span class="ident">reattach_message</span>).<span class="ident">await</span><span class="question-mark">?</span>;
         <span class="comment">// Get message if we use remote PoW, because the node will change parents and nonce</span>
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">local_pow</span> {
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_local_pow</span>() {
             <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">reattach_message</span>,
             <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">get_message</span>().<span class="ident">data</span>(<span class="kw-2">&amp;</span><span class="ident">message_id</span>).<span class="ident">await</span><span class="question-mark">?</span>,
         };
@@ -1530,16 +1619,17 @@
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">promote_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">message_id</span>: <span class="kw-2">&amp;</span><span class="ident">MessageId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">MessageId</span>, <span class="ident">Message</span>)<span class="op">&gt;</span> {
         <span class="comment">// Create a new message (zero value message) for which one tip would be the actual message</span>
         <span class="kw">let</span> <span class="ident">tips</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_tips</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">min_pow_score</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_min_pow_score</span>().<span class="ident">await</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">promote_message</span> <span class="op">=</span> <span class="ident">MessageBuilder</span>::<span class="op">&lt;</span><span class="ident">ClientMiner</span><span class="op">&gt;</span>::<span class="ident">new</span>()
             .<span class="ident">with_network_id</span>(<span class="self">self</span>.<span class="ident">get_network_id</span>().<span class="ident">await</span><span class="question-mark">?</span>)
             .<span class="ident">with_parents</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">*</span><span class="ident">message_id</span>, <span class="ident">tips</span>[<span class="number">0</span>]])
-            .<span class="ident">with_nonce_provider</span>(<span class="self">self</span>.<span class="ident">get_pow_provider</span>(), <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">min_pow_score</span>)
+            .<span class="ident">with_nonce_provider</span>(<span class="self">self</span>.<span class="ident">get_pow_provider</span>(), <span class="ident">min_pow_score</span>, <span class="prelude-val">None</span>)
             .<span class="ident">finish</span>()
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">TransactionError</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">message_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">post_message</span>(<span class="kw-2">&amp;</span><span class="ident">promote_message</span>).<span class="ident">await</span><span class="question-mark">?</span>;
         <span class="comment">// Get message if we use remote PoW, because the node will change parents and nonce</span>
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">local_pow</span> {
+        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_local_pow</span>() {
             <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">promote_message</span>,
             <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">get_message</span>().<span class="ident">data</span>(<span class="kw-2">&amp;</span><span class="ident">message_id</span>).<span class="ident">await</span><span class="question-mark">?</span>,
         };
@@ -1551,8 +1641,8 @@
     <span class="comment">//////////////////////////////////////////////////////////////////////</span>
 
     <span class="doccomment">/// A generic send function for easily sending transaction or indexation messages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SendBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-        <span class="ident">SendBuilder</span>::<span class="ident">new</span>(<span class="self">self</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ClientMessageBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+        <span class="ident">ClientMessageBuilder</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Return a valid unspent address.</span>

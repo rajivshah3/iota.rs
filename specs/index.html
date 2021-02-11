@@ -174,7 +174,7 @@
 <li><a href="#Builder">Builder</a></li>
 <li><a href="#General-high-level-API">General high level API</a>
 <ul>
-<li><a href="#send"><code>send</code></a></li>
+<li><a href="#message"><code>message</code></a></li>
 <li><a href="#get_message"><code>get_message</code></a></li>
 <li><a href="#find_messages"><code>find_messages</code></a></li>
 <li><a href="#get_unspent_address"><code>get_unspent_address</code></a></li>
@@ -190,6 +190,7 @@
 <li><a href="#Full-node-API">Full node API</a>
 <ul>
 <li><a href="#get_health"><code>get_health</code></a></li>
+<li><a href="#get_peers"><code>get_health</code></a></li>
 <li><a href="#get_info"><code>get_info</code></a></li>
 <li><a href="#get_tips"><code>get_tips</code></a></li>
 <li><a href="#post_message"><code>post_message</code></a></li>
@@ -197,6 +198,7 @@
 <li><a href="#get_address"><code>get_address</code></a></li>
 <li><a href="#find_outputs"><code>find_outputs</code></a></li>
 <li><a href="#get_milestone"><code>get_milestone</code></a></li>
+<li><a href="#get_milestone_utxo_changes"><code>get_milestone_utxo_changes</code></a></li>
 </ul>
 </li>
 <li><a href="#Objects">Objects</a>
@@ -228,8 +230,9 @@
 <tr><td><strong>node_sync_disabled</strong></td><td>✘</td><td>false</td><td>bool</td><td>If disabled also unhealty nodes will be used</td></tr>
 <tr><td><strong>node_pool_urls</strong></td><td>None</td><td>✘</td><td>&amp;[String]</td><td>A list of node_pool_urls from which nodes are added. The amount of nodes specified in quorum_size are randomly selected from this node list to check for quorum based on the quorum threshold. If quorum_size is not given the full list of nodes is checked.</td></tr>
 <tr><td><strong>request_timeout</strong></td><td>✘</td><td>Duration::from_secs(30)</td><td>std::time::Duration</td><td>The amount of seconds a request can be outstanding to a node before it's considered timed out</td></tr>
-<tr><td><strong>api_timeout</strong></td><td>✘</td><td>Api::GetInfo: Duration::from_secs(2)),<br /> Api::GetHealth: Duration::from_secs(2),<br />Api::GetMilestone: Duration::from_secs(2),<br />Api::GetTips: Duration::from_secs(2),<br />Api::PostMessage: Duration::from_secs(2),<br />Api::PostMessageWithRemotePow: Duration::from_secs(30),<br />Api::GetOutput: Duration::from_secs(2)</td><td>HashMap&lt;<a href="#Api">Api</a>,<br /> std::time::Duration&gt;</td><td>The amount of milliseconds a request to a specific Api endpoint can be outstanding to a node before it's considered timed out.</td></tr>
+<tr><td><strong>api_timeout</strong></td><td>✘</td><td>Api::GetInfo: Duration::from_secs(2)),<br /> Api::GetHealth: Duration::from_secs(2),<br />Api::GetPeers: Duration::from_secs(2),<br />Api::GetMilestone: Duration::from_secs(2),<br />Api::GetTips: Duration::from_secs(2),<br />Api::PostMessage: Duration::from_secs(2),<br />Api::PostMessageWithRemotePow: Duration::from_secs(30),<br />Api::GetOutput: Duration::from_secs(2)</td><td>HashMap&lt;<a href="#Api">Api</a>,<br /> std::time::Duration&gt;</td><td>The amount of milliseconds a request to a specific Api endpoint can be outstanding to a node before it's considered timed out.</td></tr>
 <tr><td><strong>local_pow</strong></td><td>✘</td><td>True</td><td>bool</td><td>If not defined it defaults to local PoW to offload node load times</td></tr>
+<tr><td><strong>tips_interval</strong></td><td>✘</td><td>15</td><td>u64</td><td>Time interval during PoW when new tips get requested.</td></tr>
 <tr><td><strong>mqtt_broker_options</strong></td><td>✘</td><td>True,<br />Duration::from_secs(30),<br />True</td><td><a href="#BrokerOptions">BrokerOptions</a></td><td>If not defined the default values will be used, use_ws: false will try to connect over tcp</td></tr>
 </tbody></table>
 <ul>
@@ -259,7 +262,7 @@ for node in node_pool_urls{
 </span></code></pre></pre>
 <h1><a class="header" href="#general-high-level-api" id="general-high-level-api"><code>General high level API</code></a></h1>
 <p>Here is the high level abstraction API collection with sensible default values for users easy to use.</p>
-<h2><a class="header" href="#send" id="send"><code>send()</code></a></h2>
+<h2><a class="header" href="#message" id="message"><code>message()</code></a></h2>
 <p>A generic send function for easily sending a message.</p>
 <h3><a class="header" href="#parameters-1" id="parameters-1">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Default</th><th>Type</th><th>Definition</th></tr></thead><tbody>
@@ -273,7 +276,6 @@ for node in node_pool_urls{
 <tr><td><strong>index</strong></td><td>✘</td><td>None</td><td>&amp;str</td><td>An optional indexation key for an indexation payload. 1-64 bytes long.</td></tr>
 <tr><td><strong>data</strong></td><td>✘</td><td>None</td><td>Vec<u8></td><td>Optional data for the indexation payload.</td></tr>
 <tr><td><strong>parents</strong></td><td>✘</td><td>None</td><td><a href="#MessageId">MessageId</a></td><td>1-8 optional parents <a href="#MessageId">MessageId</a> to be used.</td></tr>
-<tr><td><strong>network</strong></td><td>✘</td><td>None</td><td>&amp;str</td><td>Optional select a network to get default nodes for it if no other node is provided. Can be &quot;mainnet&quot; or &quot;testnet&quot;</td></tr>
 </tbody></table>
 <p>Depending on the provided values this function will create a message with:</p>
 <ul>
@@ -445,12 +447,28 @@ for node in node_pool_urls{
 <p>None</p>
 <h3><a class="header" href="#returns-6" id="returns-6">Returns</a></h3>
 <p>Boolean to indicate if node is healthy.</p>
-<h2><a class="header" href="#get_info" id="get_info"><code>get_info()</code></a></h2>
-<p>(<code>GET /api/v1/info</code>)</p>
-<p>Returns information about the node.</p>
+<h2><a class="header" href="#get_peers" id="get_peers"><code>get_peers()</code></a></h2>
+<p>(<code>GET /peers</code>)</p>
+<p>Get information about the peers of the node.</p>
 <h3><a class="header" href="#parameters-12" id="parameters-12">Parameters</a></h3>
 <p>None</p>
 <h3><a class="header" href="#returns-7" id="returns-7">Returns</a></h3>
+<pre><code class="language-Rust">pub struct PeerDto {
+    pub id: String,
+    #[serde(rename = &quot;multiAddresses&quot;)]
+    pub multi_addresses: Vec&lt;String&gt;,
+    pub alias: Option&lt;String&gt;,
+    pub relation: RelationDto,
+    pub connected: bool,
+    pub gossip: Option&lt;GossipDto&gt;,
+}
+</code></pre>
+<h2><a class="header" href="#get_info" id="get_info"><code>get_info()</code></a></h2>
+<p>(<code>GET /api/v1/info</code>)</p>
+<p>Returns information about the node.</p>
+<h3><a class="header" href="#parameters-13" id="parameters-13">Parameters</a></h3>
+<p>None</p>
+<h3><a class="header" href="#returns-8" id="returns-8">Returns</a></h3>
 <p>A Response Object similar to this:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -471,9 +489,9 @@ for node in node_pool_urls{
 <h2><a class="header" href="#get_tips" id="get_tips"><code>get_tips()</code></a></h2>
 <p>(<code>GET /tips</code>)</p>
 <p>Returns two non-lazy tips. In case the node can only provide one tip, tip1 and tip2 are identical.</p>
-<h3><a class="header" href="#parameters-13" id="parameters-13">Parameters</a></h3>
+<h3><a class="header" href="#parameters-14" id="parameters-14">Parameters</a></h3>
 <p>None</p>
-<h3><a class="header" href="#returns-8" id="returns-8">Returns</a></h3>
+<h3><a class="header" href="#returns-9" id="returns-9">Returns</a></h3>
 <p>A tuple with two <a href="#MessageId">MessageId</a>:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -484,28 +502,28 @@ for node in node_pool_urls{
 <h2><a class="header" href="#post_message" id="post_message"><code>post_message()</code></a></h2>
 <p>(<code>POST /message</code>)</p>
 <p>Submit a message. The node takes care of missing fields and tries to build the message. On success, the message will be stored in the Tangle. This endpoint will return the identifier of the message.</p>
-<h3><a class="header" href="#parameters-14" id="parameters-14">Parameters</a></h3>
+<h3><a class="header" href="#parameters-15" id="parameters-15">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
 <tr><td><strong>message</strong></td><td>✔</td><td><a href="#Message">Message</a></td><td>The message object.</td></tr>
 </tbody></table>
-<h3><a class="header" href="#returns-9" id="returns-9">Returns</a></h3>
+<h3><a class="header" href="#returns-10" id="returns-10">Returns</a></h3>
 <p>The <a href="#MessageId">MessageId</a> of the message object.</p>
 <h2><a class="header" href="#get_output" id="get_output"><code>get_output()</code></a></h2>
 <p>(<code>GET /outputs</code>)</p>
 <p>Get the producer of the output, the corresponding address, amount and spend status of an output. This information can only be retrieved for outputs which are part of a confirmed transaction.</p>
-<h3><a class="header" href="#parameters-15" id="parameters-15">Parameters</a></h3>
+<h3><a class="header" href="#parameters-16" id="parameters-16">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
 <tr><td><strong>output_id</strong></td><td>✔</td><td>UTXOInput</td><td>Identifier of the output.</td></tr>
 </tbody></table>
-<h3><a class="header" href="#returns-10" id="returns-10">Returns</a></h3>
+<h3><a class="header" href="#returns-11" id="returns-11">Returns</a></h3>
 <p>An <a href="#OutputMetadata">OutputMetadata</a> that contains various information about the output.</p>
 <h2><a class="header" href="#get_address" id="get_address"><code>get_address()</code></a></h2>
 <p>(<code>GET /addresses</code>)</p>
-<h3><a class="header" href="#parameters-16" id="parameters-16">Parameters</a></h3>
+<h3><a class="header" href="#parameters-17" id="parameters-17">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
 <tr><td><strong>address</strong></td><td>✔</td><td><a href="#Bech32Address">Bech32Address</a></td><td>The address to search for.</td></tr>
 </tbody></table>
-<h3><a class="header" href="#returns-11" id="returns-11">Returns</a></h3>
+<h3><a class="header" href="#returns-12" id="returns-12">Returns</a></h3>
 <p>Depend on the final calling method, users could get different outputs they need:</p>
 <ul>
 <li><code>balance()</code>: Return confirmed balance of the address.</li>
@@ -513,22 +531,36 @@ for node in node_pool_urls{
 </ul>
 <h2><a class="header" href="#find_outputs" id="find_outputs"><code>find_outputs()</code></a></h2>
 <p>Find all outputs based on the requests criteria.</p>
-<h3><a class="header" href="#parameters-17" id="parameters-17">Parameters</a></h3>
+<h3><a class="header" href="#parameters-18" id="parameters-18">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
 <tr><td><strong>output_id</strong></td><td>✘</td><td>[UTXOInput]</td><td>The identifier of output.</td></tr>
 <tr><td><strong>addresses</strong></td><td>✘</td><td>[<a href="#Bech32Address">Bech32Address</a>]</td><td>The Bech32 encoded address.</td></tr>
 </tbody></table>
-<h3><a class="header" href="#returns-12" id="returns-12">Returns</a></h3>
+<h3><a class="header" href="#returns-13" id="returns-13">Returns</a></h3>
 <p>A vector of <a href="#OutputMetadata">OutputMetadata</a>.</p>
 <h2><a class="header" href="#get_milestone" id="get_milestone"><code>get_milestone()</code></a></h2>
 <p>(<code>GET /milestones</code>)</p>
 <p>Get the milestone by the given index.</p>
-<h3><a class="header" href="#parameters-18" id="parameters-18">Parameters</a></h3>
+<h3><a class="header" href="#parameters-19" id="parameters-19">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
 <tr><td><strong>index</strong></td><td>✔</td><td>u64</td><td>Index of the milestone.</td></tr>
 </tbody></table>
-<h3><a class="header" href="#returns-13" id="returns-13">Returns</a></h3>
+<h3><a class="header" href="#returns-14" id="returns-14">Returns</a></h3>
 <p>An <a href="#Milestone">Milestone</a> object.</p>
+<h2><a class="header" href="#get_milestone_utxo_changes" id="get_milestone_utxo_changes"><code>get_milestone_utxo_changes()</code></a></h2>
+<p>(<code>GET /milestones/{}/utxo-changes</code>)</p>
+<p>Get all UTXO changes of a given milestone.</p>
+<h3><a class="header" href="#parameters-20" id="parameters-20">Parameters</a></h3>
+<table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
+<tr><td><strong>index</strong></td><td>✔</td><td>u64</td><td>Index of the milestone.</td></tr>
+</tbody></table>
+<h3><a class="header" href="#returns-15" id="returns-15">Returns</a></h3>
+<pre><code class="language-Rust">MilestoneUTXOChanges {
+    index: 1,
+    created_outputs: [],
+    consumed_outputs: [],
+}
+</code></pre>
 <h1><a class="header" href="#objects" id="objects">Objects</a></h1>
 <p>Here are the objects used in the API above. They aim to provide a secure way to handle certain data structures specified in the Iota stack.</p>
 <h2><a class="header" href="#messageid" id="messageid"><code>MessageId</code></a></h2>
@@ -546,7 +578,7 @@ for node in node_pool_urls{
 }
 </code></pre>
 <p>An IOTA seed that inner structure is omitted. Users can create this type by passing a String. It will verify and return an error if it’s not valid. |</p>
-<h2><a class="header" href="#message" id="message"><code>Message</code></a></h2>
+<h2><a class="header" href="#message-1" id="message-1"><code>Message</code></a></h2>
 <p>The message object returned by various functions; based on the <a href="https://github.com/GalRogozinski/protocol-rfcs/blob/message/text/0017-message/0017-message.md">RFC</a> for the Message object. Here's the brief overview of each components in Message type would look like:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]

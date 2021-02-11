@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["HARDEND",""]],"fn":[["is_dust_allowed",""]],"struct":[["AddressIndexRecorder","Structure for sorting of UnlockBlocks"],["SendBuilder","Builder of send API"]]});
