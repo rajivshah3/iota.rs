@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["get_mqtt_client",""],["poll_mqtt",""]],"struct":[["MqttManager","MQTT subscriber."],["MqttTopicManager","The MQTT topic manager. Subscribes and unsubscribes from topics."],["Topic","A topic."]]});

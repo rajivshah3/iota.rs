@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ReceiptPayload",""]]});
+initSidebarItems({"struct":[["MigratedFundsEntry",""],["ReceiptPayload",""]]});

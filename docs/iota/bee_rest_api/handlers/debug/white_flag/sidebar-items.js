@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["WhiteFlagResponse","Response of GET /debug/whiteflag"]]});

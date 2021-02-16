@@ -859,11 +859,6 @@
 <span id="856">856</span>
 <span id="857">857</span>
 <span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2021 IOTA Stiftung</span>
 <span class="comment">// SPDX-License-Identifier: Apache-2.0</span>
@@ -1247,7 +1242,7 @@
 
     <span class="doccomment">/// Gets the network id of the node we&#39;re connecting to.</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_network_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">network_info</span>.<span class="ident">network_id</span>.<span class="ident">unwrap</span>())
     }
 
@@ -1256,28 +1251,28 @@
         <span class="ident">ClientMinerBuilder</span>::<span class="ident">new</span>().<span class="ident">with_local_pow</span>(<span class="self">self</span>.<span class="ident">get_local_pow</span>()).<span class="ident">finish</span>()
     }
 
-    <span class="doccomment">/// Gets the network related information and if it&#39;s the default one, sync it first.</span>
-    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_synced_network_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NetworkInfo</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">network_id</span>.<span class="ident">is_none</span>() {
+    <span class="doccomment">/// Gets the network related information such as network_id and min_pow_score</span>
+    <span class="doccomment">/// and if it&#39;s the default one, sync it first.</span>
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_network_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NetworkInfo</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client_network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
+        <span class="kw">if</span> <span class="ident">client_network_info</span>.<span class="ident">network_id</span>.<span class="ident">is_none</span>() {
             <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_info</span>().<span class="ident">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">network_id</span> <span class="op">=</span> <span class="ident">hash_network</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">network_id</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">client_network_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
             <span class="ident">client_network_info</span>.<span class="ident">network_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">network_id</span>);
             <span class="ident">client_network_info</span>.<span class="ident">min_pow_score</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">min_pow_score</span>;
             <span class="ident">client_network_info</span>.<span class="ident">bech32_hrp</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">bech32_hrp</span>;
         }
-
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_network_info</span>())
+        <span class="prelude-val">Ok</span>(<span class="ident">client_network_info</span>.<span class="ident">clone</span>())
     }
 
-    <span class="doccomment">/// returns the min pow score</span>
+    <span class="doccomment">/// returns the bech32_hrp</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_bech32_hrp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">bech32_hrp</span>)
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">bech32_hrp</span>)
     }
 
     <span class="doccomment">/// returns the min pow score</span>
     <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_min_pow_score</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_synced_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">min_pow_score</span>)
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">get_network_info</span>().<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">min_pow_score</span>)
     }
 
     <span class="doccomment">/// returns the tips interval</span>
@@ -1288,11 +1283,6 @@
     <span class="doccomment">/// returns the local pow</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_local_pow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">local_pow</span>
-    }
-
-    <span class="doccomment">/// Gets the network related information such as network_id and min_pow_score</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_network_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NetworkInfo</span> {
-        <span class="self">self</span>.<span class="ident">network_info</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>()
     }
 
     <span class="comment">///////////////////////////////////////////////////////////////////////</span>
@@ -1530,7 +1520,7 @@
 
     <span class="doccomment">/// GET /api/v1/milestones/{index} endpoint</span>
     <span class="doccomment">/// Get the milestone by the given index.</span>
-    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_milestone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MilestoneResponse</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_milestone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MilestoneResponse</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_node</span>()<span class="question-mark">?</span>;
         <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;api/v1/milestones/{}&quot;</span>, <span class="ident">index</span>));
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
@@ -1557,7 +1547,7 @@
 
     <span class="doccomment">/// GET /api/v1/milestones/{index}/utxo-changes endpoint</span>
     <span class="doccomment">/// Get the milestone by the given index.</span>
-    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_milestone_utxo_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MilestoneUTXOChanges</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">get_milestone_utxo_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MilestoneUTXOChanges</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_node</span>()<span class="question-mark">?</span>;
         <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;api/v1/milestones/{}/utxo-changes&quot;</span>, <span class="ident">index</span>));
         <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="self">self</span>
@@ -1652,7 +1642,7 @@
 
     <span class="doccomment">/// Return a list of addresses from the seed regardless of their validity.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_addresses</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Seed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GetAddressesBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">GetAddressesBuilder</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">seed</span>)
+        <span class="ident">GetAddressesBuilder</span>::<span class="ident">new</span>(<span class="ident">seed</span>).<span class="ident">with_client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
     }
 
     <span class="doccomment">/// Find all messages by provided message IDs and/or indexation_keys.</span>

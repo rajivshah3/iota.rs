@@ -699,7 +699,7 @@ for node in node_pool_urls{
 <p>Get the milestone by the given index.</p>
 <h3><a class="header" href="#parameters-19" id="parameters-19">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
-<tr><td><strong>index</strong></td><td>✔</td><td>u64</td><td>Index of the milestone.</td></tr>
+<tr><td><strong>index</strong></td><td>✔</td><td>u32</td><td>Index of the milestone.</td></tr>
 </tbody></table>
 <h3><a class="header" href="#returns-14" id="returns-14">Returns</a></h3>
 <p>An <a href="specs/index.html#Milestone">Milestone</a> object.</p>
@@ -708,7 +708,7 @@ for node in node_pool_urls{
 <p>Get all UTXO changes of a given milestone.</p>
 <h3><a class="header" href="#parameters-20" id="parameters-20">Parameters</a></h3>
 <table><thead><tr><th>Parameter</th><th>Required</th><th>Type</th><th>Definition</th></tr></thead><tbody>
-<tr><td><strong>index</strong></td><td>✔</td><td>u64</td><td>Index of the milestone.</td></tr>
+<tr><td><strong>index</strong></td><td>✔</td><td>u32</td><td>Index of the milestone.</td></tr>
 </tbody></table>
 <h3><a class="header" href="#returns-15" id="returns-15">Returns</a></h3>
 <pre><code class="language-Rust">MilestoneUTXOChanges {
@@ -823,7 +823,7 @@ struct ReferenceUnlock(u16);
     /// Should reattach
     pub should_reattach: Option&lt;bool&gt;,
     /// Referenced by milestone index
-    pub referenced_by_milestone_index: Option&lt;u64&gt;,
+    pub referenced_by_milestone_index: Option&lt;u32&gt;,
     /// Ledger inclusion state
     pub ledger_inclusion_state: Option&lt;String&gt;,
 }
@@ -875,7 +875,7 @@ struct ReferenceUnlock(u16);
 </span><span class="boring">fn main() {
 </span>pub struct MilestoneMetadata {
     /// Milestone index
-    pub milestone_index: u64,
+    pub milestone_index: u32,
     /// Milestone ID
     pub message_id: String,
     /// Timestamp
